@@ -12,6 +12,8 @@ public class Main {
 		trump.put("racist");
 		trump.put("liar");
 		trump.put("mysogonist");
-		System.out.println("trump = "+ trump.get());
+		for (int i = 0; i < 4; i++) {
+			System.out.println("trump = "+ trump.get());
+		}
 	}
 }

@@ -10,7 +10,7 @@ public class Buffer {
 	private int size;// how many objects are stored currently
 	private int first;// position of first member of waiting queue
 	private int last;// position of last member of waiting queue
-	private Object[] elements;// the array organised as ringbuffer
+	private Object[] elements = new Object[2];// the array organised as ringbuffer
 	private final int minLength = 2;
 	
 	// constructor
