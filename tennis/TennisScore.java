@@ -7,9 +7,12 @@ package tennis;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class TennisScore implements TennisScoring {
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
-    //TODO finish match, winner declaration not implemented
+public class TennisScore extends JFrame implements TennisScoring {
+
+    //TODO winner is declared now, but sets are not updated before winner popup is shown. this, however, is not something i can fix on the frontend, and is purely a backend matter. ill leave this one to the profs.
 
     private int currentSet;
     private boolean gameIsFinished;
@@ -20,6 +23,11 @@ public class TennisScore implements TennisScoring {
     private int[][] gamesInSet = new int[3][100];
     private int[] wonSets = new int[3];
     private boolean tiebreaker;
+
+    public static void infoBox(String infoMessage, String titleBar)
+    {
+        JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
+    }
 
     public TennisScore() {
         newMatch();
@@ -203,6 +211,7 @@ public class TennisScore implements TennisScoring {
         for (int i = 1; i < 3; i++) {
             if (wonSets[i] >= 3) {
                 winner = i;
+                infoBox("Winner: Player " + winner, "Winner declaration");
                 newMatch();
             }
         }
