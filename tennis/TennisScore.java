@@ -9,9 +9,13 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class TennisScore implements TennisScoring {
 
-    //TODO switch service doesnt work
+    //TODO tie break not implemented
 
-    //TODO finish match doesnt work
+    //tiebreak if game is 6-6
+    //points now counted 1,2,3,...
+    //first player to 7 points by two wins tiebreak game and therefore the set
+
+    //TODO finish match, winner declaration not implemented
 
     private int currentSet;
     private boolean gameIsFinished;
@@ -21,6 +25,7 @@ public class TennisScore implements TennisScoring {
     private boolean[] hasService = new boolean[3];
     private int[][] gamesInSet = new int[3][100];
     private int[] wonSets = new int[3];
+    private boolean tiebreaker;
 
     public TennisScore() {
         newMatch();
@@ -50,6 +55,7 @@ public class TennisScore implements TennisScoring {
     @Override
     public void newMatch() {// start new match when newMatchButton is pressed
         currentSet = 1;
+        tiebreaker = false;
         gameIsFinished = false;
         for (int i = 1; i < 3; i++) {
             points[i] = 0;
@@ -64,30 +70,59 @@ public class TennisScore implements TennisScoring {
     
     @Override
     public void pointFor(int player){// add a point for the player whose button is pressed // int player is equal to 1 if player 1 scored or 2 if player 2 scored
-        points[player]++;
-        for (int i = 1; i < 3; i++){
-            if (points[i] > 3) {
-                checkWin(player);
-            } else {
-                switch (points[i]) {
-                    case 0:
-                        score[i] = "Love";
-                        break;
-                    case 1:
-                        score[i] = "15";
-                        break;
-                    case 2:
-                        score[i] = "30";
-                        break;
-                    case 3:
-                        score[i] = "40";
-                        if (points[1] == points[2]) {
-                            score[1] = "deuce";
-                            score[2] = "deuce";
-                        }
-                        break;
-                    default:
-                        break;    
+        if (!tiebreaker) {
+            points[player]++;
+            for (int i = 1; i < 3; i++){
+                if (points[i] > 3) {
+                    checkWin(player);
+                } else {
+                    switch (points[i]) {
+                        case 0:
+                            score[i] = "Love";
+                            break;
+                        case 1:
+                            score[i] = "15";
+                            break;
+                        case 2:
+                            score[i] = "30";
+                            break;
+                        case 3:
+                            score[i] = "40";
+                            if (points[1] == points[2]) {
+                                score[1] = "deuce";
+                                score[2] = "deuce";
+                            }
+                            break;
+                        default:
+                            break;    
+                    }
+                }
+            }
+        } else {
+            //tiebreaker points system
+            points[player]++;
+            for (int i = 0; i < gamesInSet.length; i++) {
+                score[i] = Integer.toString(points[i]);
+                if (points[i] >= 7) {
+                    if (points[1] - points[2] >= 2) {// player 1 wins the tiebreaker
+                        gameIsFinished = true;
+                        wonSets[1]++;
+                    }
+                    if (points[2] - points[1] >= 2) {// player 2 wins the tiebreaker
+                        gameIsFinished = true;
+                        wonSets[2]++;
+                    }
+                }
+                if (isFinished()) {
+                    tiebreaker = false;
+                    gamesInSet[i][currentSet]++;
+                    gameIsFinished = false;
+                    for (int j = 1; j < 3; j++) {
+                        points[j] = 0;
+                        score[j] = "Love";
+                    }
+                    currentSet++;
+                    switchService();
                 }
             }
         }
@@ -106,11 +141,9 @@ public class TennisScore implements TennisScoring {
             for (int j = 1; j < 3; j++) { score[j] = "deuce"; }
         }
         if (points[1] - points[2] >= 2) {// player 1 wins the game
-            winner = 1;
             gameIsFinished = true;
         }
         if (points[2] - points[1] >= 2) {// player 2 wins the game
-            winner = 2;
             gameIsFinished = true;
         }
         if (points[1] - points[2] == 1) {// player 1 has advantage
@@ -148,11 +181,19 @@ public class TennisScore implements TennisScoring {
             if (gamesInSet(i, currentSet) >= 6) {
                 if (gamesInSet(1, currentSet) - gamesInSet(2, currentSet) >= 2) {
                     wonSets[1]++;
+                    currentSet++;
                 }
                 if (gamesInSet(2, currentSet) - gamesInSet(1, currentSet) >= 2) {
                     wonSets[2]++;
+                    currentSet++;
                 }
-                currentSet++;
+                if (gamesInSet(1, currentSet) == gamesInSet(2, currentSet) && gamesInSet(i, currentSet) == 6) {// score is now 6-6, going into tiebreaker
+                    tiebreaker = true;
+                    for (int j = 1; j < 3; j++) {//reset points (and score, because score is just the "translation" of the points)
+                        points[j] = 0;
+                        score[j] = "Love";
+                    }
+                }
             }
         }
         winner();
@@ -168,6 +209,7 @@ public class TennisScore implements TennisScoring {
         for (int i = 1; i < 3; i++) {
             if (wonSets[i] >= 3) {
                 winner = i;
+                newMatch();
             }
         }
         return winner;
