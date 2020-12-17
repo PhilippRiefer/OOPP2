@@ -9,12 +9,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class TennisScore implements TennisScoring {
 
-    //TODO tie break not implemented
-
-    //tiebreak if game is 6-6
-    //points now counted 1,2,3,...
-    //first player to 7 points by two wins tiebreak game and therefore the set
-
     //TODO finish match, winner declaration not implemented
 
     private int currentSet;
